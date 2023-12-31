@@ -1,5 +1,7 @@
 from django.shortcuts import render
 
+from projects.models import Project
+
 projects_list = [
     {
         'id': '1',
@@ -20,15 +22,13 @@ projects_list = [
 
 
 def projects(request):
-    page = 'projects'
-    number = 11
-    context = {'page': page, 'number': number, 'projects': projects_list}
+    projects_obj = Project.objects.all()
+    context = {'projects': projects_obj}
     return render(request, 'projects/projects.html', context)
 
 
 def project(request, pk):
-    project_obj = None
-    for project in projects_list:
-        if project['id'] == pk:
-            project_obj = project
-    return render(request, 'projects/single-project.html', {'project': project_obj})
+    project_obj = Project.objects.get(id=pk)
+    return render(
+        request, 'projects/single-project.html', {'project': project_obj}
+    )
