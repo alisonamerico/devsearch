@@ -1,7 +1,8 @@
-from django.shortcuts import render
-from projects.forms import ProjectForm
+from django.shortcuts import redirect, render
 
+from projects.forms import ProjectForm
 from projects.models import Project
+
 
 def projects(request):
     projects_obj = Project.objects.all()
@@ -15,7 +16,33 @@ def project(request, pk):
         request, 'projects/single-project.html', {'project': project_obj}
     )
 
+
 def create_project(request):
     form = ProjectForm()
+    if request.method == 'POST':
+        form = ProjectForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('projects')
     context = {'form': form}
-    return render(request, 'project_form.html', context)    
+    return render(request, 'projects/project_form.html', context)
+
+
+def update_project(request, pk):
+    project = Project.objects.get(id=pk)
+    form = ProjectForm(instance=project)
+    if request.method == 'POST':
+        form = ProjectForm(request.POST, instance=project)
+        if form.is_valid():
+            form.save()
+            return redirect('projects')
+    context = {'form': form}
+    return render(request, 'projects/project_form.html', context)
+
+def delete_project(request, pk):
+    project = Project.objects.get(id=pk)
+    if request.method == 'POST':
+        project.delete()
+        return redirect('projects')
+    context = {'project': project}
+    return render(request, 'projects/delete_template.html', context)
